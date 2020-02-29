@@ -1,5 +1,6 @@
 but.py
 *.wav
+*.ui
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
