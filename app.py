@@ -11,11 +11,57 @@ import numpy as np
 
 
 class window(QtWidgets.QMainWindow):
+    sampleRate = 0
+    sample = 0
+    sampleTime = 0
+
+
     def __init__(self):
         super(window, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        
+        self.initActionUI()
 
+    def initActionUI(self):
+        self.ui.actionOpen_WAV_file_2.triggered.connect(self.open_file)
+        self.ui.actionSave_WAV_file.triggered.connect(self.save_file)
+        self.ui.actionExit.triggered.connect(self.exit)
+        self.ui.actionSetting_filter.triggered.connect(self.open_settingWindow)
+        self.ui.actionAbout.triggered.connect(self.open_aboutWindow)
+
+        self.ui.startButton.clicked.connect(self.start_filtering)
+
+    def start_filtering(self):
+        pass
+
+    def open_file(self):
+        options = QtWidgets.QFileDialog.Options()
+        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(self,"Open file", "","WAV Files (*.wav)", options=options)
+        
+        if file_path:
+            file_name = file_path.split("/")
+            self.ui.sampleLabel.setText(file_name[-1])
+            sample_rate, sample = wavfile.read(file_path)
+            sample_time = sample.shape[0] / sample_rate
+            window.sample = sample
+            window.sampleRate = sample_rate
+            window.sampleTime = sample_time
+            
+    
+    def save_file(self):
+        pass
+    
+    def exit(self):
+        pass
+
+    def open_settingWindow(self):
+        pass
+
+    def open_aboutWindow(self):
+        pass
+    
+    
 
 app = QtWidgets.QApplication([])
 application = window()
@@ -23,10 +69,6 @@ application.show()
 
 sys.exit(app.exec())
 
-#sample_rate, sample = wavfile.read('./Sound_v2.wav')
-#print('ok')
-#print(sample_rate)
-#print(sample.shape[0])
 
 ##sample_time = sample.shape[0] / sample_rate
 #print(sample_time)
