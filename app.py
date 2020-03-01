@@ -11,10 +11,6 @@ import numpy as np
 
 
 class window(QtWidgets.QMainWindow):
-    sampleRate = 0
-    sample = 0
-    sampleTime = 0
-
 
     def __init__(self):
         super(window, self).__init__()
@@ -44,9 +40,7 @@ class window(QtWidgets.QMainWindow):
             self.ui.sampleLabel.setText(file_name[-1])
             sample_rate, sample = wavfile.read(file_path)
             sample_time = sample.shape[0] / sample_rate
-            window.sample = sample
-            window.sampleRate = sample_rate
-            window.sampleTime = sample_time
+            
             
     
     def save_file(self):
