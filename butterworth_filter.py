@@ -1,11 +1,12 @@
 import numpy
 from scipy import signal
 
-#from scipy import signal
+from sample import SampleSignal
 
-class ButterworthFilter:
+class ButterworthFiltringSignal(SampleSignal):
     
-    def __init__(self, orderFiltr,
+    def __init__(self,
+                    orderFiltr,
                     criticalFrequency,
                     samplingFrequency,
                     typeFiltr="lowpass",
