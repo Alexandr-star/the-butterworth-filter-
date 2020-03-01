@@ -8,4 +8,5 @@ class Sample:
     def filtering(self):
         pass
 
-    
+    def drawChart(self):
+        pass
