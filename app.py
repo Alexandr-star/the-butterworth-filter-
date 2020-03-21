@@ -1,22 +1,27 @@
 import sys
 
 from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
 from ui_app import Ui_MainWindow
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
 from scipy.io import wavfile
 from scipy import signal
 import matplotlib.pyplot as plt
 import numpy as np
-
+import signalwidget
+import filtrsignalwidget
 
 class window(QtWidgets.QMainWindow):
-
+    NOT_FILTRED = False
+    FILTRES = True
     def __init__(self):
         super(window, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        
+
         self.initActionUI()
 
     def initActionUI(self):
@@ -34,18 +39,25 @@ class window(QtWidgets.QMainWindow):
     def open_file(self):
         options = QtWidgets.QFileDialog.Options()
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(self,"Open file", "","WAV Files (*.wav)", options=options)
-        
+
         if file_path:
             file_name = file_path.split("/")
             self.ui.sampleLabel.setText(file_name[-1])
             sample_rate, sample = wavfile.read(file_path)
             sample_time = sample.shape[0] / sample_rate
-            
-            
-    
+
+
+
+
+    def update_graph(self, fitred):
+        if fitred:
+            pass
+        else:
+            signalwidget.signalWidget().drawSignal()
+
     def save_file(self):
         pass
-    
+
     def exit(self):
         pass
 
@@ -54,14 +66,21 @@ class window(QtWidgets.QMainWindow):
 
     def open_aboutWindow(self):
         pass
-    
-    
 
-app = QtWidgets.QApplication([])
-application = window()
-application.show()
+class WidgetPlot(QWidget):
+    def __init__(self, *args, **kwargs):
+        QWidget.__init__(self, *args, **kwargs)
+        self.setLayout(QVBoxLayout())
+        self.canvas = signalwidget.signalWidget(self)
+        self.toolbar = NavigationToolbar(self.canvas, self)
+        self.layout().addWidget(self.toolbar)
+        self.layout().addWidget(self.canvas)
 
-sys.exit(app.exec())
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    application = window()
+    application.show()
+    sys.exit(app.exec())
 
 
 ##sample_time = sample.shape[0] / sample_rate

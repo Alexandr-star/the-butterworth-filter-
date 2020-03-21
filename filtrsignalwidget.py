@@ -1,0 +1,20 @@
+from PyQt5.QtWidgets import QSizePolicy
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import numpy as np
+import random
+
+class filtrSignalWidget(FigureCanvas):
+    def __init__(self, parent=None, dpi=100):
+        fig = Figure(figsize=(371, 221), dpi=dpi)
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+        FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+        #self.drawFiltredSignal()
+
+    def drawFiltredSignal(self):
+        data = [random.random() for i in range(250)]
+        ax = self.figure.add_subplot(111)
+        ax.plot(data, 'r-', linewidth=0.5)
+        ax.set_title('PyQt Matplotlib Example')

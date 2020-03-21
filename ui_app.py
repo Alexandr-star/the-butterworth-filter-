@@ -8,7 +8,8 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from filtrsignalwidget import filtrSignalWidget
+from signalwidget import signalWidget
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -52,9 +53,18 @@ class Ui_MainWindow(object):
         self.startButton = QtWidgets.QPushButton(self.centralwidget)
         self.startButton.setGeometry(QtCore.QRect(10, 250, 75, 23))
         self.startButton.setObjectName("startButton")
-        self.graphicsView = QtWidgets.QGraphicsView(self.centralwidget)
-        self.graphicsView.setGeometry(QtCore.QRect(220, 10, 731, 531))
-        self.graphicsView.setObjectName("graphicsView")
+        self.horizontalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(200, 10, 751, 531))
+        self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.signalWidget = signalWidget(self.horizontalLayoutWidget)
+        self.signalWidget.setObjectName("signalWidget")
+        self.horizontalLayout.addWidget(self.signalWidget)
+        self.filtrSignalWidget = filtrSignalWidget(self.horizontalLayoutWidget)
+        self.filtrSignalWidget.setObjectName("filtrSignalWidget")
+        self.horizontalLayout.addWidget(self.filtrSignalWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 964, 21))
@@ -114,3 +124,4 @@ class Ui_MainWindow(object):
         self.actionOpen_WAV_file_2.setText(_translate("MainWindow", "Open  WAV-file"))
         self.actionSetting_filter.setText(_translate("MainWindow", "Setting filter"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
+
