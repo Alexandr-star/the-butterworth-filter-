@@ -11,12 +11,17 @@ from scipy.io import wavfile
 from scipy import signal
 import matplotlib.pyplot as plt
 import numpy as np
+import random
+
 import signalwidget
 import filtrsignalwidget
 
 class window(QtWidgets.QMainWindow):
     NOT_FILTRED = False
     FILTRES = True
+
+    count = 0
+
     def __init__(self):
         super(window, self).__init__()
         self.ui = Ui_MainWindow()
@@ -34,7 +39,9 @@ class window(QtWidgets.QMainWindow):
         self.ui.startButton.clicked.connect(self.start_filtering)
 
     def start_filtering(self):
-        pass
+        self.filtredSignal = filtrsignalwidget.filtrSignalWidget(self)
+        self.ui.horizontalLayout.addWidget(self.filtredSignal)
+
 
     def open_file(self):
         options = QtWidgets.QFileDialog.Options()
@@ -46,14 +53,14 @@ class window(QtWidgets.QMainWindow):
             sample_rate, sample = wavfile.read(file_path)
             sample_time = sample.shape[0] / sample_rate
 
+            self.starterSignal = signalwidget.signalWidget(self)
+            self.ui.horizontalLayout.addWidget(self.starterSignal)
 
 
+    def update_singnalGraph(self):
+        self.signalGraph = signalwidget.signalWidget(self)
+        self.ui.horizontalLayout.addWidget(self.signalGraph)
 
-    def update_graph(self, fitred):
-        if fitred:
-            pass
-        else:
-            signalwidget.signalWidget().drawSignal()
 
     def save_file(self):
         pass
@@ -67,14 +74,14 @@ class window(QtWidgets.QMainWindow):
     def open_aboutWindow(self):
         pass
 
-class WidgetPlot(QWidget):
-    def __init__(self, *args, **kwargs):
-        QWidget.__init__(self, *args, **kwargs)
-        self.setLayout(QVBoxLayout())
-        self.canvas = signalwidget.signalWidget(self)
-        self.toolbar = NavigationToolbar(self.canvas, self)
-        self.layout().addWidget(self.toolbar)
-        self.layout().addWidget(self.canvas)
+#class WidgetPlot(QWidget):
+ #   def __init__(self, *args, **kwargs):
+  #      QWidget.__init__(self, *args, **kwargs)
+   #     self.setLayout(QVBoxLayout())
+    #    self.canvas = signalwidget.signalWidget(self)
+     #   self.toolbar = NavigationToolbar(self.canvas, self)
+      #  self.layout().addWidget(self.toolbar)
+       # self.layout().addWidget(self.canvas)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
