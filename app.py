@@ -26,7 +26,8 @@ class window(QtWidgets.QMainWindow):
         super(window, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
+        self.tempFiltredWidget = None
+        self.tempWidget = None
         self.initActionUI()
 
     def initActionUI(self):
@@ -39,13 +40,25 @@ class window(QtWidgets.QMainWindow):
         self.ui.startButton.clicked.connect(self.start_filtering)
 
     def start_filtering(self):
+        window.count = window.count + 1
+        print(window.count)
+        if window.count >= 1:
+            self.ui.horizontalLayout.removeWidget(self.tempFiltredWidget)
+            self.tempFiltredWidget = None
+            window.count = 0
+
         self.filtredSignal = filtrsignalwidget.filtrSignalWidget(self)
-        self.ui.horizontalLayout.addWidget(self.filtredSignal)
+        self.tempFiltredWidget = self.filtredSignal
+        self.ui.horizontalLayout.addWidget(self.tempFiltredWidget)
+
+
 
 
     def open_file(self):
         options = QtWidgets.QFileDialog.Options()
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(self,"Open file", "","WAV Files (*.wav)", options=options)
+        self.ui.horizontalLayout.removeWidget(self.tempFiltredWidget)
+        self.ui.horizontalLayout.removeWidget(self.tempWidget)
 
         if file_path:
             file_name = file_path.split("/")
@@ -54,7 +67,8 @@ class window(QtWidgets.QMainWindow):
             sample_time = sample.shape[0] / sample_rate
 
             self.starterSignal = signalwidget.signalWidget(self)
-            self.ui.horizontalLayout.addWidget(self.starterSignal)
+            self.tempWidget = self.starterSignal
+            self.ui.horizontalLayout.addWidget(self.tempWidget)
 
 
     def update_singnalGraph(self):
