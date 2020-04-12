@@ -29,6 +29,11 @@ class window(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.tempFiltredWidget = None
         self.tempWidget = None
+
+        self.sample = None
+        self.sample_rate = None
+        self.sample_time = None
+
         self.initActionUI()
 
     def initActionUI(self):
@@ -41,16 +46,11 @@ class window(QtWidgets.QMainWindow):
         self.ui.startButton.clicked.connect(self.start_filtering)
 
     def start_filtering(self):
-        window.count = window.count + 1
-        print(window.count)
-        if window.count >= 1:
-            self.ui.horizontalLayout.removeWidget(self.tempFiltredWidget)
-            self.tempFiltredWidget = None
-            window.count = 0
+        butteroworthFiltringSignal = ButterworthFiltringSignal()
+        filtredSepmle = butteroworthFiltringSignal.buttFilter(self.sample)
+        #width, height = butteroworthFiltringSignal.AFRfilter()
 
-        self.filtredSignal = filtrsignalwidget.filtrSignalWidget(self)
-        self.tempFiltredWidget = self.filtredSignal
-        self.ui.horizontalLayout.addWidget(self.tempFiltredWidget)
+        print(filtredSepmle)
 
 
     def start_draw(self):
@@ -75,8 +75,8 @@ class window(QtWidgets.QMainWindow):
         if file_path:
             file_name = file_path.split("/")
             self.ui.sampleLabel.setText(file_name[-1])
-            sample_rate, sample = wavfile.read(file_path)
-            sample_time = sample.shape[0] / sample_rate
+            self.sample_rate, self.sample = wavfile.read(file_path)
+            self.sample_time = self.sample.shape[0] / self.sample_rate
 
             self.start_draw()
 
@@ -102,58 +102,9 @@ class window(QtWidgets.QMainWindow):
     def open_aboutWindow(self):
         pass
 
-#class WidgetPlot(QWidget):
- #   def __init__(self, *args, **kwargs):
-  #      QWidget.__init__(self, *args, **kwargs)
-   #     self.setLayout(QVBoxLayout())
-    #    self.canvas = signalwidget.signalWidget(self)
-     #   self.toolbar = NavigationToolbar(self.canvas, self)
-      #  self.layout().addWidget(self.toolbar)
-       # self.layout().addWidget(self.canvas)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     application = window()
     application.show()
     sys.exit(app.exec())
-
-
-##sample_time = sample.shape[0] / sample_rate
-#print(sample_time)
-
-# Входные данные
-
-# Порядок фильтра
-#order = 10 
-# Критическая чачтота или частоты 
-#Wn = 0.05
-# тип фильтра
-#type = 'lowpass' 
-# Аналоговый фильтр
-#analog = True 
-#Тип вывода: числитель / знаменатель («ba»), 
-#ноль полюсов («zpk») или секции второго порядка («sos»). 
-#Значение по умолчанию - «ba» для обратной совместимости,
-#но «sos» следует использовать для фильтрации общего назначения.
-#output = {'ba', 'zpk', 'sos'}
-# Частота дискретизации цифровой системы.
-#fs 
-
-#times = np.linspace(0., sample_time, sample.shape[0])
-
-
-#sos = signal.butter(order, Wn, btype=type, fs=1000, output='sos')
-#filtered_sample = signal.sosfilt(sos, sample)
-#fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
-
-
-#ax1.plot(times, sample[:, 0], label="Left channel")
-#ax1.plot(times, sample[:, 1], label="Right channel")
-#ax1.legend()
-
-#ax2.plot(times, filtered_sample[:, 0], label="Left channel")
-#ax2.plot(times, filtered_sample[:, 1], label="Right channel")
-#ax2.legend()
-#plt.tight_layout()
-
-#plt.show()

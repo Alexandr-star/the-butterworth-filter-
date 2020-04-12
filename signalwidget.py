@@ -18,6 +18,14 @@ class signalWidget(FigureCanvas):
 
     def drawSignal(self):
         data = [random.random() for i in range(250)]
-        ax = self.figure.add_subplot(111)
-        ax.plot(data, 'r-', linewidth = 0.5)
-        ax.set_title('Not Filtr')
+        canvasSignal = self.figure.add_subplot(2, 1, 1)
+        canvasSignal.set_title('Signal')
+        canvasSignal.set_ylabel("x")
+        canvasSignal.plot(data, 'r-', linewidth = 0.5)
+
+        canvasAFR = self.figure.add_subplot(2, 1, 2)
+        canvasAFR.set_ylabel('x')
+        canvasAFR.set_xlabel('y')
+        canvasAFR.plot(data, 'r-', linewidth = 0.5)
+
+
