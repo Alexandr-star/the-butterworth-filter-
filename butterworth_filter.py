@@ -6,9 +6,9 @@ from sample import SampleSignal
 class ButterworthFiltringSignal(SampleSignal):
     
     def __init__(self,
-                    orderFiltr,
-                    criticalFrequency,
-                    samplingFrequency,
+                    orderFiltr=12,
+                    criticalFrequency=32,
+                    samplingFrequency=1,
                     typeFiltr="lowpass",
                     analog=True):
         # Порядок фильтра

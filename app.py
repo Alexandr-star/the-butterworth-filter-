@@ -15,6 +15,7 @@ import random
 
 import signalwidget
 import filtrsignalwidget
+from butterworth_filter import ButterworthFiltringSignal
 
 class window(QtWidgets.QMainWindow):
     NOT_FILTRED = False
@@ -52,6 +53,17 @@ class window(QtWidgets.QMainWindow):
         self.ui.horizontalLayout.addWidget(self.tempFiltredWidget)
 
 
+    def start_draw(self):
+        window.count = window.count + 1
+        print(window.count)
+        if window.count >= 1:
+            self.ui.horizontalLayout.removeWidget(self.tempFiltredWidget)
+            self.tempFiltredWidget = None
+            window.count = 0
+
+        self.starterSignal = signalwidget.signalWidget(self)
+        self.tempWidget = self.starterSignal
+        self.ui.horizontalLayout.addWidget(self.tempWidget)
 
 
     def open_file(self):
@@ -66,9 +78,7 @@ class window(QtWidgets.QMainWindow):
             sample_rate, sample = wavfile.read(file_path)
             sample_time = sample.shape[0] / sample_rate
 
-            self.starterSignal = signalwidget.signalWidget(self)
-            self.tempWidget = self.starterSignal
-            self.ui.horizontalLayout.addWidget(self.tempWidget)
+            self.start_draw()
 
 
     def update_singnalGraph(self):
@@ -76,14 +86,18 @@ class window(QtWidgets.QMainWindow):
         self.ui.horizontalLayout.addWidget(self.signalGraph)
 
 
+
     def save_file(self):
         pass
+
 
     def exit(self):
         pass
 
+
     def open_settingWindow(self):
         pass
+
 
     def open_aboutWindow(self):
         pass
@@ -143,36 +157,3 @@ if __name__ == "__main__":
 #plt.tight_layout()
 
 #plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -6,9 +6,3 @@ class SampleSignal:
         self.sampleTime = sampleTime
 
     
-
-    def drawChart(self):
-        pass
-
-    def drawAFR(self):
-        pass
