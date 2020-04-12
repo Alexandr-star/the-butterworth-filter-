@@ -32,16 +32,17 @@ class ButterworthFiltringSignal(SampleSignal):
         low = self.__lowcut / nyq
         high = self.__highcut / nyq
         sos = signal.butter(self.__orderFiltr,
-                            [low, high],
+                            self.__criticalFrequency,
                             btype=self.__typeFiltr,
                             analog=self.__analog,
                             output="sos")
 
+        print(sos)
         return sos
 
-    def butter_bandpass_filter(self, signal, lowcut=500.0, highcut=1250.0):
+    def butter_bandpass_filter(self, sample):
         sos = self.butter_bandpass()
-        y = signal.sosfilt(sos, signal)
+        y = signal.sosfilt(sos, sample)
 
         return y
 

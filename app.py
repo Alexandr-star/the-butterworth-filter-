@@ -1,4 +1,5 @@
 import sys
+import wave
 
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
@@ -22,6 +23,12 @@ class window(QtWidgets.QMainWindow):
     FILTRES = True
 
     count = 0
+
+    types = {
+        1: np.int8,
+        2: np.int16,
+        4: np.int32
+    }
 
     def __init__(self):
         super(window, self).__init__()
@@ -47,10 +54,11 @@ class window(QtWidgets.QMainWindow):
 
     def start_filtering(self):
         butteroworthFiltringSignal = ButterworthFiltringSignal()
-        filtredSepmle = butteroworthFiltringSignal.buttFilter(self.sample)
-        #width, height = butteroworthFiltringSignal.AFRfilter()
+        filtredSepmle = butteroworthFiltringSignal.butter_bandpass_filter(self.sample)
+        width, height = butteroworthFiltringSignal.AFRfilter()
 
         print(filtredSepmle)
+        print(width, "  ", height)
 
 
     def start_draw(self):
@@ -61,7 +69,8 @@ class window(QtWidgets.QMainWindow):
             self.tempFiltredWidget = None
             window.count = 0
 
-        self.starterSignal = signalwidget.signalWidget(self)
+        s = self.sample
+        self.starterSignal = signalwidget.signalWidget(s, self)
         self.tempWidget = self.starterSignal
         self.ui.horizontalLayout.addWidget(self.tempWidget)
 
@@ -75,14 +84,19 @@ class window(QtWidgets.QMainWindow):
         if file_path:
             file_name = file_path.split("/")
             self.ui.sampleLabel.setText(file_name[-1])
+            print(file_path)
             self.sample_rate, self.sample = wavfile.read(file_path)
             self.sample_time = self.sample.shape[0] / self.sample_rate
+
+            print("Good")
+            print(self.sample)
+
 
             self.start_draw()
 
 
     def update_singnalGraph(self):
-        self.signalGraph = signalwidget.signalWidget(self)
+        self.signalGraph = signalwidget.signalWidget(self, self.sample)
         self.ui.horizontalLayout.addWidget(self.signalGraph)
 
 
