@@ -8,9 +8,9 @@ class ButterworthFiltringSignal(SampleSignal):
     def __init__(self,
                     lowcut=500.0,
                     highcut = 1250.0,
-                    orderFiltr=12,
-                    criticalFrequency=32,
-                    samplingFrequency=1,
+                    orderFiltr=50,
+                    criticalFrequency=5,
+                    samplingFrequency=100,
                     typeFiltr="lowpass",
                     analog=True):
 
@@ -28,9 +28,6 @@ class ButterworthFiltringSignal(SampleSignal):
         self.__samplingFrequency = samplingFrequency
 
     def butter_bandpass(self):
-        nyq = 0.5 * self.__samplingFrequency
-        low = self.__lowcut / nyq
-        high = self.__highcut / nyq
         sos = signal.butter(self.__orderFiltr,
                             self.__criticalFrequency,
                             btype=self.__typeFiltr,
@@ -45,6 +42,17 @@ class ButterworthFiltringSignal(SampleSignal):
         y = signal.sosfilt(sos, sample)
 
         return y
+
+
+    def butter_bandpass2(self):
+        b, a = signal.butter(self.__orderFiltr,
+                            self.__criticalFrequency,
+                            btype=self.__typeFiltr,
+                            analog=self.__analog,
+                            output="ba")
+
+        w, h = signal.freqs(b, a)
+        return w, h
 
 
     def AFRfilter(self):

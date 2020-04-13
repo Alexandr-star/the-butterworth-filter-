@@ -23,12 +23,7 @@ class window(QtWidgets.QMainWindow):
     FILTRES = True
 
     count = 0
-
-    types = {
-        1: np.int8,
-        2: np.int16,
-        4: np.int32
-    }
+    countS = 0
 
     def __init__(self):
         super(window, self).__init__()
@@ -41,6 +36,10 @@ class window(QtWidgets.QMainWindow):
         self.sample_rate = None
         self.sample_time = None
 
+        self.orderFiltr = 0
+        self.criticalFrequency = 0
+        self.samplingFrequency = 0
+
         self.initActionUI()
 
     def initActionUI(self):
@@ -50,27 +49,63 @@ class window(QtWidgets.QMainWindow):
         self.ui.actionSetting_filter.triggered.connect(self.open_settingWindow)
         self.ui.actionAbout.triggered.connect(self.open_aboutWindow)
 
+        self.ui.SliderOrder.setRange(-5000, 5000)
+        self.ui.SliderOrder.setPageStep(1)
+        self.ui.SliderOrder.valueChanged.connect(self.changeOrder)
+        self.ui.spinBoxOrger.setRange(-5000, 5000)
+        self.ui.spinBoxOrger.valueChanged.connect(self.changeSpinOrder)
+
+
+        self.ui.SliderCrit.setRange(-5000.00, 5000.00)
+        self.ui.SliderCrit.setPageStep(1)
+        self.ui.SliderCrit.valueChanged.connect(self.changeCrit)
+        self.ui.spinBoxCrit.setRange(-5000.00, 5000.00)
+        self.ui.spinBoxCrit.valueChanged.connect(self.changeSpinCrit)
+
+
+        self.ui.SliderFreq.setRange(-5000.0, 5000.0)
+        self.ui.SliderFreq.setPageStep(0.01)
+        self.ui.SliderFreq.valueChanged.connect(self.changeFreq)
+        self.ui.SpinBoxFreq.setRange(-5000.0, 5000.0)
+        self.ui.SpinBoxFreq.valueChanged.connect(self.changeSpinFreq)
+
         self.ui.startButton.clicked.connect(self.start_filtering)
 
     def start_filtering(self):
         butteroworthFiltringSignal = ButterworthFiltringSignal()
         filtredSepmle = butteroworthFiltringSignal.butter_bandpass_filter(self.sample)
         width, height = butteroworthFiltringSignal.AFRfilter()
+        print("ok")
+        self.start_draw(filtredSepmle)
+        self.start_drawFilt(filtredSepmle, width, height, self.sample_rate)
 
-        print(filtredSepmle)
-        print(width, "  ", height)
-
-
-    def start_draw(self):
+    def start_drawFilt(self, *filt):
+        print(filt)
         window.count = window.count + 1
         print(window.count)
         if window.count >= 1:
             self.ui.horizontalLayout.removeWidget(self.tempFiltredWidget)
             self.tempFiltredWidget = None
             window.count = 0
+            print("DEL")
 
         s = self.sample
-        self.starterSignal = signalwidget.signalWidget(s, self)
+        self.filtSignal = filtrsignalwidget.filtrSignalWidget(s, filt, parent=self)
+        self.tempFiltredWidget = self.filtSignal
+        self.ui.horizontalLayout.addWidget(self.tempFiltredWidget)
+
+
+    def start_draw(self, *filt):
+        window.countS = window.countS + 1
+        print(window.countS)
+        if window.countS >= 1:
+            self.ui.horizontalLayout.removeWidget(self.tempWidget)
+            self.tempWidget = None
+            window.countS = 0
+            print("DEL")
+
+        s = self.sample
+        self.starterSignal = signalwidget.signalWidget(s, filt, parent=self)
         self.tempWidget = self.starterSignal
         self.ui.horizontalLayout.addWidget(self.tempWidget)
 
@@ -80,6 +115,10 @@ class window(QtWidgets.QMainWindow):
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(self,"Open file", "","WAV Files (*.wav)", options=options)
         self.ui.horizontalLayout.removeWidget(self.tempFiltredWidget)
         self.ui.horizontalLayout.removeWidget(self.tempWidget)
+
+        print(self.orderFiltr)
+        print(self.criticalFrequency)
+        print(self.samplingFrequency)
 
         if file_path:
             file_name = file_path.split("/")
@@ -91,14 +130,37 @@ class window(QtWidgets.QMainWindow):
             print("Good")
             print(self.sample)
 
-
             self.start_draw()
 
 
-    def update_singnalGraph(self):
-        self.signalGraph = signalwidget.signalWidget(self, self.sample)
-        self.ui.horizontalLayout.addWidget(self.signalGraph)
+    def changeOrder(self, value):
+        self.ui.spinBoxOrger.setValue(value)
+        self.orderFiltr = value
 
+
+    def changeFreq(self, value):
+        self.ui.SpinBoxFreq.setValue(float(value))
+        self.criticalFrequency = value
+
+
+    def changeCrit(self, value):
+        self.ui.spinBoxCrit.setValue(value)
+        self.samplingFrequency = value
+
+
+    def changeSpinOrder(self, value):
+        self.ui.SliderOrder.setValue(value)
+        self.orderFiltr = value
+
+
+    def changeSpinFreq(self, value):
+        self.ui.SliderFreq.setValue(value)
+        self.criticalFrequency = value
+
+
+    def changeSpinCrit(self, value):
+        self.ui.SliderCrit.setValue(value)
+        self.samplingFrequency = value
 
 
     def save_file(self):
