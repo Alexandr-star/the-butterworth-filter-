@@ -72,7 +72,9 @@ class window(QtWidgets.QMainWindow):
         self.ui.startButton.clicked.connect(self.start_filtering)
 
     def start_filtering(self):
-        butteroworthFiltringSignal = ButterworthFiltringSignal()
+        butteroworthFiltringSignal = ButterworthFiltringSignal(orderFiltr=self.orderFiltr,
+                                                                criticalFrequency=self.criticalFrequency,
+                                                               samplingFrequency=self.samplingFrequency)
         filtredSepmle = butteroworthFiltringSignal.butter_bandpass_filter(self.sample)
         width, height = butteroworthFiltringSignal.AFRfilter()
         print("ok")
