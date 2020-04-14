@@ -5,21 +5,12 @@ from sample import SampleSignal
 
 class ButterworthFiltringSignal(SampleSignal):
     
-    def __init__(self,
-                    lowcut=500.0,
-                    highcut = 1250.0,
-                    orderFiltr=50,
-                    criticalFrequency=5,
-                    samplingFrequency=100,
-                    typeFiltr="lowpass",
-                    analog=True):
+    def __init__(self, samplingFrequency, typeFiltr="low", analog=True):
 
-        self.__lowcut = lowcut
-        self.__highcut = highcut
         # Порядок фильтра
-        self.__orderFiltr = orderFiltr 
+        self.__orderFiltr = 0
         # Критическая чачтота или частоты 
-        self.__criticalFrequency = criticalFrequency
+        self.__criticalFrequency = 0
         # тип фильтра
         self.__typeFiltr = typeFiltr 
         # Аналоговый фильтр
@@ -43,20 +34,25 @@ class ButterworthFiltringSignal(SampleSignal):
 
         return y
 
+    def setOrderAndCritFreq(self, wp, ws, maxBand, minBand):
+        self.__orderFiltr, self.__criticalFrequency = signal.buttord(wp=wp, ws=ws, gpass=minBand, gstop=maxBand, analog=False, fs=self.__samplingFrequency)
+        print(self.__orderFiltr, self.__criticalFrequency)
 
-    def butter_bandpass2(self):
-        b, a = signal.butter(self.__orderFiltr,
-                            self.__criticalFrequency,
-                            btype=self.__typeFiltr,
-                            analog=self.__analog,
-                            output="ba")
+    #[30, 80], [20, 90]  wp, ws, minBad, maxBand, analog=self.__analog, fs=self.__samplingFrequency
 
-        w, h = signal.freqs(b, a)
-        return w, h
+    # def butter_bandpass2(self):
+    #     b, a = signal.butter(self.__orderFiltr,
+    #                         self.__criticalFrequency,
+    #                         btype=self.__typeFiltr,
+    #                         analog=self.__analog,
+    #                         output="ba")
+    #
+    #     w, h = signal.freqs(b, a)
+    #     return w, h
 
 
     def AFRfilter(self):
         sos = self.butter_bandpass()
-        w, h = signal.sosfreqz(sos, worN=2000)
+        w, h = signal.sosfreqz(sos)
         
         return w, h

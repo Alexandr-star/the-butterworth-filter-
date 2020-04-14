@@ -21,6 +21,10 @@ from butterworth_filter import ButterworthFiltringSignal
 class window(QtWidgets.QMainWindow):
     NOT_FILTRED = False
     FILTRES = True
+    minDbRange = -200.0
+    maxDbRange = 200.0
+    minWRange = 0.0
+    maxWRange = 50000.0
 
     count = 0
     countS = 0
@@ -32,54 +36,64 @@ class window(QtWidgets.QMainWindow):
         self.tempFiltredWidget = None
         self.tempWidget = None
 
+        self.file_name = None
+        self.filtredSepmle = None
+
         self.sample = None
         self.sample_rate = None
         self.sample_time = None
 
-        self.orderFiltr = 0
-        self.criticalFrequency = 0
-        self.samplingFrequency = 0
+        self.wp = 0
+        self.ws = 0
+        self.max = 0
+        self.min = 0
+        self.samplingFrequency = 8000.00
 
         self.initActionUI()
 
     def initActionUI(self):
         self.ui.actionOpen_WAV_file_2.triggered.connect(self.open_file)
-        self.ui.actionSave_WAV_file.triggered.connect(self.save_file)
+        # self.ui.actionSave_WAV_file.triggered.connect(self.save_file)
         self.ui.actionExit.triggered.connect(self.exit)
-        self.ui.actionSetting_filter.triggered.connect(self.open_settingWindow)
+        # self.ui.actionSetting_filter.triggered.connect(self.open_settingWindow)
         self.ui.actionAbout.triggered.connect(self.open_aboutWindow)
 
-        self.ui.SliderOrder.setRange(-5000, 5000)
-        self.ui.SliderOrder.setPageStep(1)
-        self.ui.SliderOrder.valueChanged.connect(self.changeOrder)
-        self.ui.spinBoxOrger.setRange(-5000, 5000)
-        self.ui.spinBoxOrger.valueChanged.connect(self.changeSpinOrder)
+        self.ui.doubleSpinBox.setRange(window.minDbRange, window.maxDbRange)
+        self.ui.doubleSpinBox.valueChanged.connect(self.setMinDB)
+        self.ui.doubleSpinBox.setValue(20.00)
+
+        self.ui.doubleSpinBox_2.setRange(window.minDbRange, window.maxDbRange)
+        self.ui.doubleSpinBox_2.valueChanged.connect(self.setMaxDB)
+        self.ui.doubleSpinBox_2.setValue(60.00)
 
 
-        self.ui.SliderCrit.setRange(-5000.00, 5000.00)
-        self.ui.SliderCrit.setPageStep(1)
-        self.ui.SliderCrit.valueChanged.connect(self.changeCrit)
-        self.ui.spinBoxCrit.setRange(-5000.00, 5000.00)
-        self.ui.spinBoxCrit.valueChanged.connect(self.changeSpinCrit)
+        self.ui.doubleSpinBox_3.setRange(window.minWRange, window.maxWRange)
+        self.ui.doubleSpinBox_3.valueChanged.connect(self.setWP)
+        self.ui.doubleSpinBox_3.setValue(60.00)
 
 
-        self.ui.SliderFreq.setRange(-5000.0, 5000.0)
+        self.ui.doubleSpinBox_4.setRange(window.minWRange, window.maxWRange)
+        self.ui.doubleSpinBox_4.valueChanged.connect(self.setWS)
+        self.ui.doubleSpinBox_4.setValue(80.00)
+
+
+        self.ui.SliderFreq.setRange(8000.0, 50000.0)
         self.ui.SliderFreq.setPageStep(0.01)
         self.ui.SliderFreq.valueChanged.connect(self.changeFreq)
-        self.ui.SpinBoxFreq.setRange(-5000.0, 5000.0)
+        self.ui.SpinBoxFreq.setRange(8000.0, 50000.0)
         self.ui.SpinBoxFreq.valueChanged.connect(self.changeSpinFreq)
 
         self.ui.startButton.clicked.connect(self.start_filtering)
 
     def start_filtering(self):
-        butteroworthFiltringSignal = ButterworthFiltringSignal(orderFiltr=self.orderFiltr,
-                                                                criticalFrequency=self.criticalFrequency,
-                                                               samplingFrequency=self.samplingFrequency)
-        filtredSepmle = butteroworthFiltringSignal.butter_bandpass_filter(self.sample)
+        if (self.sample is None): return
+
+        butteroworthFiltringSignal = ButterworthFiltringSignal(self.samplingFrequency)
+        butteroworthFiltringSignal.setOrderAndCritFreq(self.wp, self.ws, self.max, self.min)
+        self.filtredSepmle = butteroworthFiltringSignal.butter_bandpass_filter(self.sample)
         width, height = butteroworthFiltringSignal.AFRfilter()
-        print("ok")
-        self.start_draw(filtredSepmle)
-        self.start_drawFilt(filtredSepmle, width, height, self.sample_rate)
+        self.start_draw(self.filtredSepmle)
+        self.start_drawFilt(width, height)
 
     def start_drawFilt(self, *filt):
         print(filt)
@@ -91,10 +105,10 @@ class window(QtWidgets.QMainWindow):
             window.count = 0
             print("DEL")
 
-        s = self.sample
-        self.filtSignal = filtrsignalwidget.filtrSignalWidget(s, filt, parent=self)
+        self.filtSignal = filtrsignalwidget.filtrSignalWidget(filt, parent=self)
         self.tempFiltredWidget = self.filtSignal
         self.ui.horizontalLayout.addWidget(self.tempFiltredWidget)
+
 
 
     def start_draw(self, *filt):
@@ -104,7 +118,6 @@ class window(QtWidgets.QMainWindow):
             self.ui.horizontalLayout.removeWidget(self.tempWidget)
             self.tempWidget = None
             window.countS = 0
-            print("DEL")
 
         s = self.sample
         self.starterSignal = signalwidget.signalWidget(s, filt, parent=self)
@@ -118,56 +131,52 @@ class window(QtWidgets.QMainWindow):
         self.ui.horizontalLayout.removeWidget(self.tempFiltredWidget)
         self.ui.horizontalLayout.removeWidget(self.tempWidget)
 
-        print(self.orderFiltr)
-        print(self.criticalFrequency)
-        print(self.samplingFrequency)
-
         if file_path:
-            file_name = file_path.split("/")
-            self.ui.sampleLabel.setText(file_name[-1])
+            self.file_name = file_path.split("/")
+            self.ui.sampleLabel.setText(self.file_name[-1])
             print(file_path)
             self.sample_rate, self.sample = wavfile.read(file_path)
             self.sample_time = self.sample.shape[0] / self.sample_rate
 
-            print("Good")
             print(self.sample)
 
             self.start_draw()
 
 
-    def changeOrder(self, value):
-        self.ui.spinBoxOrger.setValue(value)
-        self.orderFiltr = value
+
+    def setMinDB(self, value):
+        self.min = value
+
+    def setMaxDB(self, value):
+        self.max = value
+
+    def setWP(self, value):
+        self.wp = value
+
+    def setWS(self, value):
+        self.ws = value
 
 
     def changeFreq(self, value):
         self.ui.SpinBoxFreq.setValue(float(value))
-        self.criticalFrequency = value
-
-
-    def changeCrit(self, value):
-        self.ui.spinBoxCrit.setValue(value)
         self.samplingFrequency = value
-
-
-    def changeSpinOrder(self, value):
-        self.ui.SliderOrder.setValue(value)
-        self.orderFiltr = value
-
 
     def changeSpinFreq(self, value):
         self.ui.SliderFreq.setValue(value)
-        self.criticalFrequency = value
-
-
-    def changeSpinCrit(self, value):
-        self.ui.SliderCrit.setValue(value)
         self.samplingFrequency = value
 
-
-    def save_file(self):
-        pass
-
+    # def save_file(self):
+    #     if self.filtredSepmle is None:
+    #         return
+    #     if self.file_name is not None:
+    #         options = QtWidgets.QFileDialog.Options()
+    #         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Open file", "", "WAV Files (*.wav)", options=options)
+    #         print('__________________')
+    #         if file_path:
+    #             filename = file_path.split("/")
+    #             print(filename)
+    #             print(self.filtredSepmle)
+    #             wavfile.write(filename[-1], self.sample_rate, np.array(self.filtredSepmle))
 
     def exit(self):
         pass
@@ -184,5 +193,6 @@ class window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     application = window()
+    application.setFixedSize(1000, 600)
     application.show()
     sys.exit(app.exec())
