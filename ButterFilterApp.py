@@ -1,18 +1,11 @@
 import sys
-import wave
+import os
 
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QVBoxLayout, QWidget
 
 from ui_app import Ui_MainWindow
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
 from scipy.io import wavfile
-from scipy import signal
-import matplotlib.pyplot as plt
-import numpy as np
-import random
 
 import signalwidget
 import filtrsignalwidget
@@ -56,7 +49,7 @@ class window(QtWidgets.QMainWindow):
         # self.ui.actionSave_WAV_file.triggered.connect(self.save_file)
         self.ui.actionExit.triggered.connect(self.exit)
         # self.ui.actionSetting_filter.triggered.connect(self.open_settingWindow)
-        self.ui.actionAbout.triggered.connect(self.open_aboutWindow)
+        #self.ui.actionAbout.triggered.connect(self.open_aboutWindow)
 
         self.ui.doubleSpinBox.setRange(window.minDbRange, window.maxDbRange)
         self.ui.doubleSpinBox.valueChanged.connect(self.setMinDB)
@@ -87,18 +80,21 @@ class window(QtWidgets.QMainWindow):
 
     def start_filtering(self):
         if (self.sample is None): return
-
+        if self.min == 0 or self.max == 0 or self.wp == 0 or self.ws == 0:
+            self.ui.labelExept.setText("divide by zero encountered")
+            return
+        else:
+            self.ui.labelExept.setText("")
         butteroworthFiltringSignal = ButterworthFiltringSignal(self.samplingFrequency)
         butteroworthFiltringSignal.setOrderAndCritFreq(self.wp, self.ws, self.max, self.min)
+
         self.filtredSepmle = butteroworthFiltringSignal.butter_bandpass_filter(self.sample)
         width, height = butteroworthFiltringSignal.AFRfilter()
         self.start_draw(self.filtredSepmle)
         self.start_drawFilt(width, height)
 
     def start_drawFilt(self, *filt):
-        print(filt)
         window.count = window.count + 1
-        print(window.count)
         if window.count >= 1:
             self.ui.horizontalLayout.removeWidget(self.tempFiltredWidget)
             self.tempFiltredWidget = None
@@ -120,14 +116,21 @@ class window(QtWidgets.QMainWindow):
             window.countS = 0
 
         s = self.sample
-        self.starterSignal = signalwidget.signalWidget(s, filt, parent=self)
+        self.starterSignal = signalwidget.signalWidget(s, self.sample_time, filt, parent=self)
         self.tempWidget = self.starterSignal
         self.ui.horizontalLayout.addWidget(self.tempWidget)
 
 
     def open_file(self):
         options = QtWidgets.QFileDialog.Options()
-        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(self,"Open file", "","WAV Files (*.wav)", options=options)
+        url = os.path.abspath(__file__)
+        url = url.split('\\')
+        url = url[:(len(url) - 1)]
+        url = "\\".join(url)
+        print(url)
+
+
+        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(self,"Open file", url, "WAV Files (*.wav)", options=options)
         self.ui.horizontalLayout.removeWidget(self.tempFiltredWidget)
         self.ui.horizontalLayout.removeWidget(self.tempWidget)
 
@@ -137,6 +140,8 @@ class window(QtWidgets.QMainWindow):
             print(file_path)
             self.sample_rate, self.sample = wavfile.read(file_path)
             self.sample_time = self.sample.shape[0] / self.sample_rate
+            print(self.sample_rate)
+            print(self.sample.shape[0])
 
             print(self.sample)
 
@@ -193,6 +198,6 @@ class window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     application = window()
-    application.setFixedSize(1000, 600)
+    application.setFixedSize(1050, 600)
     application.show()
     sys.exit(app.exec())

@@ -5,7 +5,7 @@ import numpy as np
 import random
 
 class filtrSignalWidget(FigureCanvas):
-    def __init__(self, *filtr, parent=None, width=372, height=529, dpi=100):
+    def __init__(self, *filtr, parent=None, width=400, height=600, dpi=70):
         fig = Figure(figsize=(width, height), dpi=dpi)
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
@@ -18,9 +18,10 @@ class filtrSignalWidget(FigureCanvas):
         w = arr[0]
         h = arr[1]
         canvasSignal = self.figure.add_subplot(111)
-        canvasSignal.semilogx(w, 20 * np.log10(abs(h)))
+        canvasSignal.semilogx(w, h)
         canvasSignal.set_title('AFR')
         canvasSignal.set_xlabel("Frequency [radians / second]")
         canvasSignal.set_ylabel("Amplitude [dB]")
         canvasSignal.grid(which='both', axis='both')
+        #20 * np.log10(abs(h))
 

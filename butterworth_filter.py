@@ -36,7 +36,7 @@ class ButterworthFiltringSignal(SampleSignal):
 
     def setOrderAndCritFreq(self, wp, ws, maxBand, minBand):
         self.__orderFiltr, self.__criticalFrequency = signal.buttord(wp=wp, ws=ws, gpass=minBand, gstop=maxBand, analog=False, fs=self.__samplingFrequency)
-        print(self.__orderFiltr, self.__criticalFrequency)
+
 
     #[30, 80], [20, 90]  wp, ws, minBad, maxBand, analog=self.__analog, fs=self.__samplingFrequency
 
