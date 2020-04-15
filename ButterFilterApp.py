@@ -17,7 +17,7 @@ class window(QtWidgets.QMainWindow):
     minDbRange = -200.0
     maxDbRange = 200.0
     minWRange = 0.0
-    maxWRange = 50000.0
+    maxWRange = 1.0
 
     count = 0
     countS = 0
@@ -61,13 +61,15 @@ class window(QtWidgets.QMainWindow):
 
 
         self.ui.doubleSpinBox_3.setRange(window.minWRange, window.maxWRange)
+        self.ui.doubleSpinBox_3.setSingleStep(0.01)
         self.ui.doubleSpinBox_3.valueChanged.connect(self.setWP)
-        self.ui.doubleSpinBox_3.setValue(60.00)
+        self.ui.doubleSpinBox_3.setValue(0.20)
 
 
         self.ui.doubleSpinBox_4.setRange(window.minWRange, window.maxWRange)
+        self.ui.doubleSpinBox_4.setSingleStep(0.01)
         self.ui.doubleSpinBox_4.valueChanged.connect(self.setWS)
-        self.ui.doubleSpinBox_4.setValue(80.00)
+        self.ui.doubleSpinBox_4.setValue(0.60)
 
 
         self.ui.SliderFreq.setRange(8000.0, 50000.0)
@@ -81,10 +83,19 @@ class window(QtWidgets.QMainWindow):
     def start_filtering(self):
         if (self.sample is None): return
         if self.min == 0 or self.max == 0 or self.wp == 0 or self.ws == 0:
-            self.ui.labelExept.setText("divide by zero encountered")
+            self.ui.labelExept.setText("Деление на ноль, не надо так")
             return
         else:
             self.ui.labelExept.setText("")
+
+        if  (self.min == self.max) or (self.wp == self.ws):
+            self.ui.labelExept.setText("Не делайте равные значения")
+            return
+        else:
+            self.ui.labelExept.setText("")
+
+        self.ui.labelOrder.setText("")
+
         butteroworthFiltringSignal = ButterworthFiltringSignal(self.samplingFrequency)
         butteroworthFiltringSignal.setOrderAndCritFreq(self.wp, self.ws, self.max, self.min)
 
@@ -92,6 +103,7 @@ class window(QtWidgets.QMainWindow):
         width, height = butteroworthFiltringSignal.AFRfilter()
         self.start_draw(self.filtredSepmle)
         self.start_drawFilt(width, height)
+        self.ui.labelOrder.setText("Порядок фильтра: {0}".format(butteroworthFiltringSignal.get_order()))
 
     def start_drawFilt(self, *filt):
         window.count = window.count + 1
@@ -125,7 +137,7 @@ class window(QtWidgets.QMainWindow):
         options = QtWidgets.QFileDialog.Options()
         url = os.path.abspath(__file__)
         url = url.split('\\')
-        url = url[:(len(url) - 1)]
+        url = url[:(len(url) - 3)]
         url = "\\".join(url)
         print(url)
 
@@ -184,7 +196,7 @@ class window(QtWidgets.QMainWindow):
     #             wavfile.write(filename[-1], self.sample_rate, np.array(self.filtredSepmle))
 
     def exit(self):
-        pass
+        sys.exit(app.exec())
 
 
     def open_settingWindow(self):

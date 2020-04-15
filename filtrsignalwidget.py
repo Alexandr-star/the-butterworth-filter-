@@ -18,7 +18,7 @@ class filtrSignalWidget(FigureCanvas):
         w = arr[0]
         h = arr[1]
         canvasSignal = self.figure.add_subplot(111)
-        canvasSignal.semilogx(w, h)
+        canvasSignal.semilogx(w, 20 * np.log10(abs(h)))
         canvasSignal.set_title('AFR')
         canvasSignal.set_xlabel("Frequency [radians / second]")
         canvasSignal.set_ylabel("Amplitude [dB]")
